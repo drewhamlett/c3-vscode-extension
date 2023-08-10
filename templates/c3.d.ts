@@ -134,9 +134,9 @@ interface IEffectInstance {
 declare var IEffectInstance:  { new(): IEffectInstance };
 
 interface IMouseObjectType extends IObjectClass {
-    getMouseX(layerNameOrIndex: string | number): number;
-    getMouseY(layerNameOrIndex: string | number): number;
-    getMousePosition(layerNameOrIndex: string | number): [number, number];
+    getMouseX(layerNameOrIndex?: string | number): number;
+    getMouseY(layerNameOrIndex?: string | number): number;
+    getMousePosition(layerNameOrIndex?: string | number): [number, number];
     isMouseButtonDown(button: 1 | 2 | 3): boolean;
 }
 declare var IMouseObjectType: undefined | { new(): IMouseObjectType };
@@ -159,11 +159,11 @@ interface IObjectClass<T = IInstance> {
     setInstanceClass(classType: { new(): unknown }): void;
     getAllInstances(): Array<T>
     getFirstInstance(): T | undefined
-    intances(): Iterator<T>;
+    instances(): Iterator<T>;
     getPickedInstances(): Array<T>
     getFirstPickedInstance(): T | undefined
     pickedInstances(): Iterator<T>;
-    createInstance(layerNameOrIndex: string | number, x: number, y: number, createHierachy: boolean): T
+    createInstance(layerNameOrIndex: string | number, x: number, y: number, createHierachy?: boolean): T
 }
 declare var IObjectClass: { new(): IObjectClass };
 // {instances}
@@ -249,10 +249,10 @@ interface IDictionaryInstance extends IInstance {
 declare var IDictionaryInstance: undefined | { new(): IDictionaryInstance };
 
 interface IDrawingCanvasInstance extends IWorldInstance {
-    readonly surfaceDeviceWidth: number;    
+    readonly surfaceDeviceWidth: number;
     readonly surfaceDeviceHeight:  number;
     getImagePixelData: Promise<ImageData>;
-    loadImagePixelData(imageData: ImageData, premultiplyAlpha?: boolean): void;  
+    loadImagePixelData(imageData: ImageData, premultiplyAlpha?: boolean): void;
 }
 declare var IDrawingCanvasInstance: undefined | { new(): IDrawingCanvasInstance };
 
@@ -392,7 +392,7 @@ interface IWorldInstance extends IInstance  {
     getBoundingBox(): DOMRect;
     getBoundingQuad(): DOMQuad;
     isVisible: boolean;
-    opacity: boolean;
+    opacity: number;
     colorRgb: [number, number, number];
     blendMode: 'normal' | 'additive' | 'copy' | 'destination-over' | 'source-in' | 'destination-in' | 'source-out' | 'destination-out' | 'source-atop' | 'destination-atop';
     effects: Array<IEffectInstance>;
@@ -448,6 +448,7 @@ interface I8DirectionBehaviorInstance extends IBehaviorInstance {
     isDefaultControls: boolean;
     isIgnoringInput: boolean;
     isEnabled: boolean;
+    setVector: (x: number, y: number) => void;
 }
 declare var I8DirectionBehaviorInstance: undefined | { new(): I8DirectionBehaviorInstance };
 
@@ -677,3 +678,9 @@ interface ITileMovementBehaviourInstance extends IBehaviorInstance {
 }
 
 declare var ITileMovementBehaviourInstance: undefined | { new(): ITileMovementBehaviourInstance };
+
+interface IFadeBehaviorInstance extends IBehaviorInstance {
+    startFade: () => void;
+}
+
+declare var IFadeBehaviorInstance: undefined | { new(): IFadeBehaviorInstance };
