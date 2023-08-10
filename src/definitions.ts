@@ -31,21 +31,42 @@ export default class ProjectDefinitions {
 
     }
 
-    async getObjectTypes (context: vscode.ExtensionContext) {
-        if (this.path && fs.existsSync(this.path.fsPath + '/objectTypes')) {
-            await fs.promises.readdir(this.path.fsPath + '/objectTypes').then(async (files) => {
-                for (const file of files) {
-                    await vscode.workspace.openTextDocument(this.path!.fsPath + '/objectTypes/' + file).then((document) => {
-                        let type = JSON.parse(document.getText());
-                        if (this.objectTypes[type.name]) {
-                            type.behaviorTypes = [...(this.objectTypes[type.name].behaviourTypes || []), ...(type.behaviorTypes || [])];
-                            type.instanceVariables = [...(this.objectTypes[type.name].instanceVariables || []), ...(type.instanceVariables || [])];
-                        }
-                        this.objectTypes[type.name] = type;
-
-                    });
+  async getObjectTypes(context: vscode.ExtensionContext) {
+        const processFile = async (filePath: string) => {
+            const document = await vscode.workspace.openTextDocument(filePath);
+            try {
+                let type = JSON.parse(document.getText());
+                if (this.objectTypes[type.name]) {
+                    type.behaviorTypes = [...(this.objectTypes[type.name].behaviourTypes || []), ...(type.behaviorTypes || [])];
+                    type.instanceVariables = [...(this.objectTypes[type.name].instanceVariables || []), ...(type.instanceVariables || [])];
                 }
-            });
+                this.objectTypes[type.name] = type;
+            } catch (e) {
+                console.error(`Error parsing JSON for file ${filePath}:`, e);
+            }
+        };
+
+        const processDirectory = async (dirPath: string) => {
+            const files = await fs.promises.readdir(dirPath, { withFileTypes: true });
+            for (const file of files) {
+                const filePath = path.join(dirPath, file.name);
+                if (file.isDirectory()) {
+                    await processDirectory(filePath); // Recursively process subdirectory
+                } else if (file.isFile()) {
+                    await processFile(filePath); // Process individual file
+                }
+            }
+        };
+
+        if (this.path) {
+            const objectTypesPath = path.join(this.path.fsPath, 'objectTypes');
+            if (fs.existsSync(objectTypesPath)) {
+                try {
+                    await processDirectory(objectTypesPath); // Process the initial directory
+                } catch (e) {
+                    console.error('Error processing directory:', e);
+                }
+            }
         }
     }
 
@@ -137,6 +158,7 @@ export default class ProjectDefinitions {
             case 'Platform': return `['${name}']: IPlatformBehaviorInstance`;
             case 'Sine': return `['${name}']: ISineBehaviorInstance`;
             case 'TileMovement': return `['${name}']: ITileMovementBehaviourInstance`;
+            case 'Fade': return `['${name}']: IFadeBehaviorInstance`;
             default: return `['${name}']: IBehaviorInstance`;
         }
     }
