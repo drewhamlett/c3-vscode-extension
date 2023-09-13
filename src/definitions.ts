@@ -54,6 +54,7 @@ export default class ProjectDefinitions {
     // }
 
     async getObjectTypes(context: vscode.ExtensionContext) {
+
         const processFile = async (filePath: string) => {
             const document = await vscode.workspace.openTextDocument(filePath);
             try {
@@ -181,6 +182,7 @@ export default class ProjectDefinitions {
             case 'Sine': return `['${name}']: ISineBehaviorInstance`;
             case 'Fade': return `['${name}']: IFadeBehaviorInstance`;
             case 'TileMovement': return `['${name}']: ITileMovementBehaviourInstance`;
+            case 'Fade': return `['${name}']: IFadeBehaviorInstance`;
             default: return `['${name}']: IBehaviorInstance`;
         }
     }
